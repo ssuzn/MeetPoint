@@ -2,48 +2,53 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getCoordinates, getNearbyPlaces } from "../services/kakaoApi";
 import { calMidpoint } from "../utils/calMidpoint";
 
+// 초기 상태
+const initialState = {
+  locations: ["", ""],
+  selectedCategory: "FD6",
+  midpoint: null, // 중간 지점 좌표 저장
+  nearbyPlaces: [],
+  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+  error: null, // 에러 메시지 저장
+};
+
 // 비동기 액션
 // 중간 지점과 주변 장소 가져오는 함수
 export const getMidpointInfo = createAsyncThunk(
-  "midpoint, getMidpointInfo",
-  async ({ location1, location2, category }) => {
-    const coord1 = await getCoordinates(location1);
-    const coord2 = await getCoordinates(location2);
-    const midpoint = calMidpoint(coord1, coord2);
-    const nearbyPlaces = await getNearbyPlaces(category, midpoint.lat, midpoint.lng);
-    return { midpoint, nearbyPlaces };
-  }
+  "midpoint/getMidpointInfo",
+  async (_, { getState, rejectWithValue }) => {
+    const { locations, selectedCategory } = getState().midpoint;
+    try {
+      const coord1 = await getCoordinates(locations[0]);
+      const coord2 = await getCoordinates(locations[1]);
+
+      const midpoint = calMidpoint(coord1, coord2);
+      const places = await getNearbyPlaces(selectedCategory, midpoint.lat, midpoint.lng);
+      
+      return { midpoint, places };
+      } catch (error) {
+        return rejectWithValue("중간 지점 및 주변 장소를 찾는데 실패했습니다.");
+      }
+    }
 );
 
 const midpointSlice = createSlice({
-    name: "midpoint",
-    initialState: {
-        location1: "",
-        location2: "",
-        category: "",
-        midpoint: null,
-        nearbyPlaces: [],
-        status: "idle",
-        error: null,
-    },
+  name: "midpoint",
+  initialState,
+
   // 동기 액션 정의
   reducers: {
-    setLocation1: (state, action) => {
-      state.location1 = action.payload;
+    setLocation: (state, action) => {
+      const { index, value } = action.payload;
+      state.locations[index] = value;
     },
-    setLocation2: (state, action) => {
-      state.location2 = action.payload;
+    addLocation: (state) => {
+      state.locations.push("");
     },
-    setCategory: (state, action) => {
-      state.category = action.payload;
+    setSelectedCategory: (state, action) => {
+      state.selectedCategory = action.payload;
     },
-    clear: (state) => {
-      state.location1 = "";
-      state.location2 = "";
-      state.category = "";
-      state.midpoint = null;
-      state.nearbyPlaces = [];
-      state.status = "idle";
+    clearError: (state) => {
       state.error = null;
     },
   },
@@ -53,12 +58,13 @@ const midpointSlice = createSlice({
     builder
       .addCase(getMidpointInfo.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       // 성공
       .addCase(getMidpointInfo.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.midpoint = action.payload.midpoint;
-        state.nearbyPlaces = action.payload.nearbyPlaces;
+        state.nearbyPlaces = action.payload.places;
       })
       // 실패
       .addCase(getMidpointInfo.rejected, (state, action) => {
@@ -68,5 +74,5 @@ const midpointSlice = createSlice({
   },
 });
 
-export const { setLocation1, setLocation2, setCategory } = midpointSlice.actions;
+export const { setLocation, addLocation, setSelectedCategory , clearError } = midpointSlice.actions;
 export default midpointSlice.reducer;
