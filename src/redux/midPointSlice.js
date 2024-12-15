@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getCoordinates, getNearbyPlaces } from "../services/kakaoApi";
+import { getAddress, getCoordinates, getNearbyPlaces } from "../services/kakaoApi";
 import { calMidpoint } from "../utils/calMidpoint";
 
 // 초기 상태
@@ -18,12 +18,14 @@ export const getMidpointInfo = createAsyncThunk(
   "midpoint/getMidpointInfo",
   async (_, { getState, rejectWithValue }) => {
     const { locations, selectedCategory } = getState().midpoint;
+
     try {
       const coord1 = await getCoordinates(locations[0]);
       const coord2 = await getCoordinates(locations[1]);
 
-      const midpoint = calMidpoint(coord1, coord2);
-      const places = await getNearbyPlaces(selectedCategory, midpoint.lat, midpoint.lng);
+      const midpointCoord = calMidpoint(coord1, coord2);
+      const midpoint = await getAddress(midpointCoord.lng, midpointCoord.lat);
+      const places = await getNearbyPlaces(selectedCategory, midpointCoord.lat, midpointCoord.lng);
       
       return { midpoint, places };
       } catch (error) {

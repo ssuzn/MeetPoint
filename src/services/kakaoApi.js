@@ -68,7 +68,7 @@ export const getAddress = async (lng, lat) => {
                 },
             }
         );
-
+        console.log(response.data);
         return response.data.documents;
     } catch (error) {
         console.error("Kakao API 호출 오류: ", error);

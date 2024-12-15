@@ -73,7 +73,7 @@ function LocationInput({ locations, onLocationChange }) {
 
   // 현재 위치 가져오기
   const handleGetCurrentLocation = (index) => {
-    dispatch(setLoading());
+    dispatch(setLoading("현재 위치를 가져오는중"));
 
     if (navigator.geolocation) {        
       navigator.geolocation.getCurrentPosition(

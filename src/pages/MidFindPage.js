@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import LocationInput from '../components/LocationInput';
 import MidpointDisplay from '../components/MidpointDisplay';
-import PlaceList from '../components/PlaceList';
 
 import { ReactComponent as RestaurantIcon } from "../assets/restaurant.svg";
 import { ReactComponent as CafeIcon } from "../assets/cafe.svg";
@@ -93,14 +92,12 @@ function MidFindPage() {
                     </CategoryList>
                 </CategoryBox>
             </CategoryContainer>
+
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            {midpoint && nearbyPlaces.length > 0 && <MidpointDisplay midpoint={midpoint} nearbyPlaces={nearbyPlaces} />}
         </SearchContainer>
 
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {midpoint && <MidpointDisplay midpoint={midpoint} />}
-        {nearbyPlaces.length > 0 && <PlaceList nearbyPlaces={nearbyPlaces} />}
     </React.Fragment>
-
   )
 }
 
