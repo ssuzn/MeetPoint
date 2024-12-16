@@ -16,6 +16,7 @@ export const getCoordinates = async (address) => {
         );
     
         const { documents } = response.data;
+        console.log(documents[0]);
         if (documents.length === 0) {
             throw new Error("해당 주소를 찾을 수 없습니다.");
         }
@@ -68,7 +69,7 @@ export const getAddress = async (lng, lat) => {
                 },
             }
         );
-
+        console.log(response.data);
         return response.data.documents;
     } catch (error) {
         console.error("Kakao API 호출 오류: ", error);
@@ -104,5 +105,35 @@ export const getNearbyPlaces = async (categoryCode, lat, lng) => {
     } catch (error) {
         console.error("Kakao API 호출 오류: ", error);
         throw error;
+    }
+};
+
+// 가까운 지하철역 이름 가져오기
+export const getNearestSubway = async (lat, lng) => {
+    try {
+        const response = await axios.get(
+            "https://dapi.kakao.com/v2/local/search/keyword.json", {
+                params: {
+                    query: "지하철역",
+                    x: lng,
+                    y: lat,
+                    radius: 1000, // 1km 반경
+                    sort: "distance",
+                },
+                headers: {
+                    Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+                },
+            });
+
+            const stations = response.data.documents;
+
+            if (stations.length > 0) {
+                return stations[0].place_name;
+            } else {
+                return "1km 반경에 지하철역을 찾을 수 없습니다.";
+            } 
+    } catch (error) {
+        console.error("지하찰역 검색 API 호출 오류: ", error);
+        return "오류가 발생했습니다.";
     }
 };

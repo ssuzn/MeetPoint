@@ -1,12 +1,16 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { getAddress, searchPlaceByKeyword } from "../services/kakaoApi";
+import { setLoading, clearLoading } from "../redux/loadingSlice";
+import { useDispatch } from "react-redux";
 
 function LocationInput({ locations, onLocationChange }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeInputIndex, setActiveInputIndex] = useState(null);
   const inputRefs = useRef([]);
+
+  const dispatch = useDispatch();
 
   // 자동완성 박스 위치
   const [inputBoxStyle, setInputBoxStyle] = useState({});
@@ -39,7 +43,7 @@ function LocationInput({ locations, onLocationChange }) {
       });
     }
   };
-  
+
   // input 변경 핸들러
   const handleInputChange = async (e, index) => {
     const query = e.target.value;
@@ -50,15 +54,11 @@ function LocationInput({ locations, onLocationChange }) {
       return;
     }
 
-    // setIsLoading(true);
-
     try {
       const results = await searchPlaceByKeyword(query);
       setSuggestions(results);
     } catch (error) {
       console.error("키워드 검색 중 오류: ", error);
-    } finally {
-      //   setIsLoading(false);
     }
   };
 
@@ -72,8 +72,10 @@ function LocationInput({ locations, onLocationChange }) {
   };
 
   // 현재 위치 가져오기
-  const handleGetCurrentLocation = () => {
-    if (navigator.geolocation) {
+  const handleGetCurrentLocation = (index) => {
+    dispatch(setLoading("현재 위치를 가져오는중"));
+
+    if (navigator.geolocation) {        
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -89,20 +91,26 @@ function LocationInput({ locations, onLocationChange }) {
                 ? document.road_address.address_name
                 : document.address.address_name;
 
-              handleSelect(address);
+                onLocationChange(index, address);
+                
+
             } else {
               alert("현재 위치를 찾을 수 없습니다.");
             }
           } catch (error) {
             console.error("현재 위치 변환 중 오류: ", error);
+          } finally {
+            dispatch(clearLoading());
           }
         },
         (error) => {
           console.error("현재 위치를 가져오는 데 실패했습니다:", error);
+          dispatch(clearLoading());
         }
       );
     } else {
       alert("이 브라우저에서는 현재 위치 기능을 지원하지 않습니다.");
+      dispatch(clearLoading());
     }
   };
 
@@ -126,7 +134,7 @@ function LocationInput({ locations, onLocationChange }) {
 
                   <CurrentButton
                     type="button"
-                    onClick={handleGetCurrentLocation}
+                    onClick={() => handleGetCurrentLocation(index)}
                   >
                     <svg
                       fill="#000000"
@@ -154,7 +162,7 @@ function LocationInput({ locations, onLocationChange }) {
                     />
                     <CurrentButton
                       type="button"
-                      onClick={handleGetCurrentLocation}
+                      onClick={() => handleGetCurrentLocation(index)}
                     >
                       <svg
                         fill="#000000"
