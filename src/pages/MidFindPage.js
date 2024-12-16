@@ -42,60 +42,60 @@ function MidFindPage() {
 
     return (
     <React.Fragment>
+        
+            <SearchContainer>
+                <FindTitle>📍 위치를 입력해주세요</FindTitle>
 
-        <SearchContainer>
-            <FindTitle>📍 위치를 입력해주세요</FindTitle>
+                <AddButtonBox>
+                    <AddButton onClick={handleAddLocation}>+</AddButton>
+                </AddButtonBox>
 
-            <AddButtonBox>
-                <AddButton onClick={handleAddLocation}>+</AddButton>
-            </AddButtonBox>
+                <SearchBox>
+                    <LocationInput 
+                    locations={locations}
+                    onLocationChange={handleLocationChange} />
 
-            <SearchBox>
-                <LocationInput 
-                locations={locations}
-                onLocationChange={handleLocationChange} />
+                </SearchBox>
 
-            </SearchBox>
+                <CategoryContainer>
+                    <Section1>
+                        <CategoryTitle>
+                            어떤 장소를 추천해드릴까요?
+                        </CategoryTitle>
+                        <CategoryButtonBox>
+                            <CategoryButton
+                                onClick={handleFindMidpointInfo}
+                                disabled={status === "loading"}
+                            >
+                                검색
+                            </CategoryButton>
+                        </CategoryButtonBox>
+                    </Section1>    
 
-            <CategoryContainer>
-                <Section1>
-                    <CategoryTitle>
-                        어떤 장소를 추천해드릴까요?
-                    </CategoryTitle>
-                    <CategoryButtonBox>
-                        <CategoryButton
-                            onClick={handleFindMidpointInfo}
-                            disabled={status === "loading"}
-                        >
-                            검색
-                        </CategoryButton>
-                    </CategoryButtonBox>
-                </Section1>    
+                    <CategoryBox>
+                        <CategoryList>
+                            {categories.map((category) => (
+                                <Category
+                                    key={category.id}
+                                    onClick={() => {
+                                        handleCategorySelect(category.id);
+                                    }}
+                                    selected={selectedCategory === category.id}>
+                                        <CategoryIcon>
+                                            {category.icon}
+                                        </CategoryIcon>
+                                        <CategoryName>
+                                            {category.name}
+                                        </CategoryName>
+                                    </Category>
+                            ))}
+                        </CategoryList>
+                    </CategoryBox>
+                </CategoryContainer>
 
-                <CategoryBox>
-                    <CategoryList>
-                        {categories.map((category) => (
-                            <Category
-                                key={category.id}
-                                onClick={() => {
-                                    handleCategorySelect(category.id);
-                                }}
-                                selected={selectedCategory === category.id}>
-                                    <CategoryIcon>
-                                        {category.icon}
-                                    </CategoryIcon>
-                                    <CategoryName>
-                                        {category.name}
-                                    </CategoryName>
-                                </Category>
-                        ))}
-                    </CategoryList>
-                </CategoryBox>
-            </CategoryContainer>
-
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            {midpoint && nearbyPlaces.length > 0 && <MidpointDisplay />}
-        </SearchContainer>
+                {error && <p style={{ color: "red" }}>{error}</p>}
+                {midpoint && nearbyPlaces.length > 0 && <MidpointDisplay />}
+            </SearchContainer>
 
     </React.Fragment>
   )
@@ -104,9 +104,10 @@ function MidFindPage() {
 export default MidFindPage;
 
 const SearchContainer = styled.div`
-    border: 1px solid;
+    margin: 40px auto;
     border-radius: 16px;
     padding: 17px 19px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 const FindTitle = styled.h2`

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAddress, getCoordinates, getNearbyPlaces } from "../services/kakaoApi";
+import { getAddress, getCoordinates, getNearbyPlaces, getNearestSubway } from "../services/kakaoApi";
 import { calMidpoint } from "../utils/calMidpoint";
 
 // 초기 상태
@@ -9,6 +9,7 @@ const initialState = {
   midpoint: null, // 중간 지점 주소 
   midpointCoord: null,  // 중간 지점 좌표
   nearbyPlaces: [],
+  nearestSubway: "",
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null, // 에러 메시지 저장
 };
@@ -27,8 +28,9 @@ export const getMidpointInfo = createAsyncThunk(
       const midpointCoord = calMidpoint(coord1, coord2);
       const midpoint = await getAddress(midpointCoord.lng, midpointCoord.lat);
       const places = await getNearbyPlaces(selectedCategory, midpointCoord.lat, midpointCoord.lng);
-      
-      return { midpointCoord, midpoint, places };
+      const nearestSubway = await getNearestSubway(midpointCoord.lat, midpointCoord.lng);
+
+      return { midpointCoord, midpoint, places, nearestSubway };
       } catch (error) {
         return rejectWithValue("중간 지점 및 주변 장소를 찾는데 실패했습니다.");
       }
@@ -69,6 +71,7 @@ const midpointSlice = createSlice({
         state.midpointCoord = action.payload.midpointCoord;
         state.midpoint = action.payload.midpoint;
         state.nearbyPlaces = action.payload.places;
+        state.nearestSubway = action.payload.nearestSubway;
       })
       // 실패
       .addCase(getMidpointInfo.rejected, (state, action) => {
