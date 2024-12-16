@@ -16,6 +16,7 @@ export const getCoordinates = async (address) => {
         );
     
         const { documents } = response.data;
+        console.log(documents[0]);
         if (documents.length === 0) {
             throw new Error("해당 주소를 찾을 수 없습니다.");
         }

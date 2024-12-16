@@ -94,7 +94,7 @@ function MidFindPage() {
             </CategoryContainer>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
-            {midpoint && nearbyPlaces.length > 0 && <MidpointDisplay midpoint={midpoint} nearbyPlaces={nearbyPlaces} />}
+            {midpoint && nearbyPlaces.length > 0 && <MidpointDisplay />}
         </SearchContainer>
 
     </React.Fragment>

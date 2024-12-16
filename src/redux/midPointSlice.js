@@ -6,7 +6,8 @@ import { calMidpoint } from "../utils/calMidpoint";
 const initialState = {
   locations: ["", ""],
   selectedCategory: "FD6",
-  midpoint: null, // 중간 지점 좌표 저장
+  midpoint: null, // 중간 지점 주소 
+  midpointCoord: null,  // 중간 지점 좌표
   nearbyPlaces: [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null, // 에러 메시지 저장
@@ -27,7 +28,7 @@ export const getMidpointInfo = createAsyncThunk(
       const midpoint = await getAddress(midpointCoord.lng, midpointCoord.lat);
       const places = await getNearbyPlaces(selectedCategory, midpointCoord.lat, midpointCoord.lng);
       
-      return { midpoint, places };
+      return { midpointCoord, midpoint, places };
       } catch (error) {
         return rejectWithValue("중간 지점 및 주변 장소를 찾는데 실패했습니다.");
       }
@@ -65,6 +66,7 @@ const midpointSlice = createSlice({
       // 성공
       .addCase(getMidpointInfo.fulfilled, (state, action) => {
         state.status = "succeeded";
+        state.midpointCoord = action.payload.midpointCoord;
         state.midpoint = action.payload.midpoint;
         state.nearbyPlaces = action.payload.places;
       })
