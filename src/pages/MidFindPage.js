@@ -38,7 +38,7 @@ function MidFindPage() {
         { id: 'CE7', name: '카페', icon: <CafeIcon /> },
         { id: 'CT1', name: '문화시설', icon: <CultureIcon /> },
         { id: 'AT4', name: '관광명소', icon: <TouristIcon /> },
-      ];
+    ];
 
     return (
     <React.Fragment>
@@ -54,7 +54,6 @@ function MidFindPage() {
                     <LocationInput 
                     locations={locations}
                     onLocationChange={handleLocationChange} />
-
                 </SearchBox>
 
                 <CategoryContainer>

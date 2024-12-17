@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { getAddress, searchPlaceByKeyword } from "../services/kakaoApi";
 import { setLoading, clearLoading } from "../redux/loadingSlice";
 import { useDispatch } from "react-redux";
+import { removeLocation } from "../redux/midPointSlice";
+import { FiDelete } from "react-icons/fi";
 
 function LocationInput({ locations, onLocationChange }) {
   const [suggestions, setSuggestions] = useState([]);
@@ -75,7 +77,7 @@ function LocationInput({ locations, onLocationChange }) {
   const handleGetCurrentLocation = (index) => {
     dispatch(setLoading("현재 위치를 가져오는중"));
 
-    if (navigator.geolocation) {        
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -91,9 +93,7 @@ function LocationInput({ locations, onLocationChange }) {
                 ? document.road_address.address_name
                 : document.address.address_name;
 
-                onLocationChange(index, address);
-                
-
+              onLocationChange(index, address);
             } else {
               alert("현재 위치를 찾을 수 없습니다.");
             }
@@ -112,6 +112,10 @@ function LocationInput({ locations, onLocationChange }) {
       alert("이 브라우저에서는 현재 위치 기능을 지원하지 않습니다.");
       dispatch(clearLoading());
     }
+  };
+
+  const handleRemoveLocation = (index) => {
+    dispatch(removeLocation(index));
   };
 
   return (
@@ -148,7 +152,18 @@ function LocationInput({ locations, onLocationChange }) {
                       <path d="M21.9870679,13 C21.7356474,17.8487018 17.8487018,21.7356474 13,21.9870679 L13,23.5 C13,23.7761424 12.7761424,24 12.5,24 C12.2238576,24 12,23.7761424 12,23.5 L12,21.9870679 C7.15129822,21.7356474 3.26435264,17.8487018 3.01293206,13 L1.5,13 C1.22385763,13 1,12.7761424 1,12.5 C1,12.2238576 1.22385763,12 1.5,12 L3.01293206,12 C3.26435264,7.15129822 7.15129822,3.26435264 12,3.01293206 L12,1.5 C12,1.22385763 12.2238576,1 12.5,1 C12.7761424,1 13,1.22385763 13,1.5 L13,3.01293206 C17.8487018,3.26435264 21.7356474,7.15129822 21.9870679,12 L23.5,12 C23.7761424,12 24,12.2238576 24,12.5 C24,12.7761424 23.7761424,13 23.5,13 L21.9870679,13 L21.9870679,13 Z M12.5,21 C17.1944204,21 21,17.1944204 21,12.5 C21,7.80557963 17.1944204,4 12.5,4 C7.80557963,4 4,7.80557963 4,12.5 C4,17.1944204 7.80557963,21 12.5,21 Z M12.5,17 C10.0147186,17 8,14.9852814 8,12.5 C8,10.0147186 10.0147186,8 12.5,8 C14.9852814,8 17,10.0147186 17,12.5 C17,14.9852814 14.9852814,17 12.5,17 Z M12.5,16 C14.4329966,16 16,14.4329966 16,12.5 C16,10.5670034 14.4329966,9 12.5,9 C10.5670034,9 9,10.5670034 9,12.5 C9,14.4329966 10.5670034,16 12.5,16 Z" />
                     </svg>
                   </CurrentButton>
+
+                  {/* 추가한 input만 삭제 버튼 */}
+                  {index >= 2 && (
+                    <DeleteButton
+                      type="button"
+                      onClick={() => handleRemoveLocation(index)}
+                    >
+                      <DeleteIcon />
+                    </DeleteButton>
+                  )}
                 </InputBox>
+
                 {locations[index + 1] !== undefined && (
                   <InputBox>
                     <Input
@@ -176,6 +191,15 @@ function LocationInput({ locations, onLocationChange }) {
                         <path d="M21.9870679,13 C21.7356474,17.8487018 17.8487018,21.7356474 13,21.9870679 L13,23.5 C13,23.7761424 12.7761424,24 12.5,24 C12.2238576,24 12,23.7761424 12,23.5 L12,21.9870679 C7.15129822,21.7356474 3.26435264,17.8487018 3.01293206,13 L1.5,13 C1.22385763,13 1,12.7761424 1,12.5 C1,12.2238576 1.22385763,12 1.5,12 L3.01293206,12 C3.26435264,7.15129822 7.15129822,3.26435264 12,3.01293206 L12,1.5 C12,1.22385763 12.2238576,1 12.5,1 C12.7761424,1 13,1.22385763 13,1.5 L13,3.01293206 C17.8487018,3.26435264 21.7356474,7.15129822 21.9870679,12 L23.5,12 C23.7761424,12 24,12.2238576 24,12.5 C24,12.7761424 23.7761424,13 23.5,13 L21.9870679,13 L21.9870679,13 Z M12.5,21 C17.1944204,21 21,17.1944204 21,12.5 C21,7.80557963 17.1944204,4 12.5,4 C7.80557963,4 4,7.80557963 4,12.5 C4,17.1944204 7.80557963,21 12.5,21 Z M12.5,17 C10.0147186,17 8,14.9852814 8,12.5 C8,10.0147186 10.0147186,8 12.5,8 C14.9852814,8 17,10.0147186 17,12.5 C17,14.9852814 14.9852814,17 12.5,17 Z M12.5,16 C14.4329966,16 16,14.4329966 16,12.5 C16,10.5670034 14.4329966,9 12.5,9 C10.5670034,9 9,10.5670034 9,12.5 C9,14.4329966 10.5670034,16 12.5,16 Z" />
                       </svg>
                     </CurrentButton>
+
+                    {index >= 2 && (
+                      <DeleteButton
+                        type="button"
+                        onClick={() => handleRemoveLocation(index)}
+                      >
+                        <DeleteIcon />
+                      </DeleteButton>
+                    )}
                   </InputBox>
                 )}
               </>
@@ -292,9 +316,24 @@ export const CurrentButton = styled.button`
   cursor: pointer;
 `;
 
+export const DeleteButton = styled.button`
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 5px;
+`;
+
+export const DeleteIcon = styled(FiDelete)`
+  width: 17px;
+  height: 17px;
+  stroke-width: 2;
+`;
+
 export const SuggestionsContainer = styled.div`
   position: absolute;
-  z-index: 1000;
+  z-index: 999;
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
