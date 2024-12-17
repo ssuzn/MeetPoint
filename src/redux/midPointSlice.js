@@ -22,10 +22,11 @@ export const getMidpointInfo = createAsyncThunk(
     const { locations, selectedCategory } = getState().midpoint;
 
     try {
-      const coord1 = await getCoordinates(locations[0]);
-      const coord2 = await getCoordinates(locations[1]);
+      // 모든 위치에 대한 좌표
+      const coordinatePromises = locations.map((location) => getCoordinates(location));
+      const coordinates = await Promise.all(coordinatePromises);
 
-      const midpointCoord = calMidpoint(coord1, coord2);
+      const midpointCoord = calMidpoint(coordinates);
       const midpoint = await getAddress(midpointCoord.lng, midpointCoord.lat);
       const places = await getNearbyPlaces(selectedCategory, midpointCoord.lat, midpointCoord.lng);
       const nearestSubway = await getNearestSubway(midpointCoord.lat, midpointCoord.lng);
@@ -49,6 +50,11 @@ const midpointSlice = createSlice({
     },
     addLocation: (state) => {
       state.locations.push("");
+    },
+    removeLocation: (state, action) => {
+      if (state.locations.length > 2) {
+        state.locations.splice(action.payload, 1); // 기본 2개를 제외한 위치만 삭제
+      }
     },
     setSelectedCategory: (state, action) => {
       state.selectedCategory = action.payload;
@@ -81,5 +87,5 @@ const midpointSlice = createSlice({
   },
 });
 
-export const { setLocation, addLocation, setSelectedCategory , clearError } = midpointSlice.actions;
+export const { setLocation, addLocation, removeLocation, setSelectedCategory , clearError } = midpointSlice.actions;
 export default midpointSlice.reducer;
