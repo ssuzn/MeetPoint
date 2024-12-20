@@ -4,10 +4,9 @@ import { calMidpoint } from "../utils/calMidpoint";
 
 // 초기 상태
 const initialState = {
-  locations: ["", ""],
+  locations: [{ address: "", coord: null }, { address: "", coord: null }],
   selectedCategory: "FD6",
   midpoint: null, // 중간 지점 주소 
-  midpointCoord: null,  // 중간 지점 좌표
   nearbyPlaces: [],
   nearestSubway: "",
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -23,15 +22,22 @@ export const getMidpointInfo = createAsyncThunk(
 
     try {
       // 모든 위치에 대한 좌표
-      const coordinatePromises = locations.map((location) => getCoordinates(location));
-      const coordinates = await Promise.all(coordinatePromises);
+      const coords = await Promise.all(
+        locations.map(async (location) => {
+          if (location.address) {
+            return await getCoordinates(location.address);
+          }
+          return null;
+        })
+      );
 
-      const midpointCoord = calMidpoint(coordinates);
-      const midpoint = await getAddress(midpointCoord.lng, midpointCoord.lat);
+      const midpointCoord = calMidpoint(coords);
+      const midpointAddress = await getAddress(midpointCoord.lng, midpointCoord.lat);
+
       const places = await getNearbyPlaces(selectedCategory, midpointCoord.lat, midpointCoord.lng);
       const nearestSubway = await getNearestSubway(midpointCoord.lat, midpointCoord.lng);
 
-      return { midpointCoord, midpoint, places, nearestSubway };
+      return { midpoint: { coord: midpointCoord, address: midpointAddress }, places, nearestSubway };
       } catch (error) {
         return rejectWithValue("중간 지점 및 주변 장소를 찾는데 실패했습니다.");
       }
@@ -45,11 +51,12 @@ const midpointSlice = createSlice({
   // 동기 액션 정의
   reducers: {
     setLocation: (state, action) => {
-      const { index, value } = action.payload;
-      state.locations[index] = value;
+      console.log("Payload received in setLocation:", action.payload);
+      const { index, address, coord } = action.payload;
+      state.locations[index] = { address, coord: coord || null };
     },
     addLocation: (state) => {
-      state.locations.push("");
+      state.locations.push({ address: "", coord: null });
     },
     removeLocation: (state, action) => {
       if (state.locations.length > 2) {
@@ -74,7 +81,7 @@ const midpointSlice = createSlice({
       // 성공
       .addCase(getMidpointInfo.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.midpointCoord = action.payload.midpointCoord;
+        // state.midpointCoord = action.payload.midpointCoord;
         state.midpoint = action.payload.midpoint;
         state.nearbyPlaces = action.payload.places;
         state.nearestSubway = action.payload.nearestSubway;

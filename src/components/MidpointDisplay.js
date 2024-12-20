@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import MidpointMap from "./MidpointMap";
+import TimeDisplay from "./TimeDisplay";
 import styled from "styled-components";
 import { FaSubway, FaMapMarkerAlt } from "react-icons/fa";
 
@@ -21,8 +22,8 @@ function MidpointDisplay() {
                 <FaMapMarkerAlt />
                 <span>
                   주소:{" "}
-                  {midpoint[0]?.road_address?.address_name ||
-                    midpoint[0]?.address?.address_name}
+                  {midpoint.address[0]?.road_address?.address_name ||
+                    midpoint.address[0]?.address?.address_name}
                 </span>
               </IconText>
               <IconText>
@@ -31,6 +32,12 @@ function MidpointDisplay() {
               </IconText>
             </>
           )}
+        </InfoBox>
+
+        {/* 소요 시간 섹션 */}
+        <InfoBox>
+          <SectionTitle>🚗 소요 시간 정보</SectionTitle>
+          <TimeDisplay />
         </InfoBox>
 
         <InfoBox>

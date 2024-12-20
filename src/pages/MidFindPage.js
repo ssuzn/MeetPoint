@@ -9,13 +9,14 @@ import { ReactComponent as CultureIcon } from "../assets/culture.svg";
 import  { ReactComponent as TouristIcon } from "../assets/tourist.svg";
 import { useDispatch, useSelector } from 'react-redux';
 import { setLocation, addLocation, setSelectedCategory, getMidpointInfo } from '../redux/midPointSlice';
+
 function MidFindPage() {
     const dispatch = useDispatch();
-    const { locations, selectedCategory, midpoint, nearbyPlaces, status, error } = useSelector((state) => state.midpoint);
+    const { selectedCategory, midpoint, nearbyPlaces, status, error } = useSelector((state) => state.midpoint);
 
     // 위치 변경 핸들러
-    const handleLocationChange = (index, newValue) => {
-        dispatch(setLocation({ index, value: newValue }));
+    const handleLocationChange = async (index, address) => {
+        dispatch(setLocation({ index, address }));
     };
 
     // 카테고리 선택 핸들러
@@ -52,8 +53,7 @@ function MidFindPage() {
 
                 <SearchBox>
                     <LocationInput 
-                    locations={locations}
-                    onLocationChange={handleLocationChange} />
+                        onLocationChange={handleLocationChange} />
                 </SearchBox>
 
                 <CategoryContainer>
@@ -103,7 +103,7 @@ function MidFindPage() {
 export default MidFindPage;
 
 const SearchContainer = styled.div`
-    margin: 40px auto;
+    margin: 40px;
     border-radius: 16px;
     padding: 17px 19px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

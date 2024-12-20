@@ -1,15 +1,21 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
-import { getAddress, searchPlaceByKeyword } from "../services/kakaoApi";
+import {
+  getAddress,
+  getCoordinates,
+  searchPlaceByKeyword,
+} from "../services/kakaoApi";
 import { setLoading, clearLoading } from "../redux/loadingSlice";
-import { useDispatch } from "react-redux";
+import { setLocation } from "../redux/midPointSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { removeLocation } from "../redux/midPointSlice";
 import { FiDelete } from "react-icons/fi";
 
-function LocationInput({ locations, onLocationChange }) {
+function LocationInput({ onLocationChange }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeInputIndex, setActiveInputIndex] = useState(null);
+  const { locations } = useSelector((state) => state.midpoint);
   const inputRefs = useRef([]);
 
   const dispatch = useDispatch();
@@ -31,47 +37,59 @@ function LocationInput({ locations, onLocationChange }) {
     if (inputRef1 && inputRef2) {
       // 각 input의 위치와 크기 반환
       const rect1 = inputRef1.getBoundingClientRect();
-      const rect2 = inputRef2.getBoundingClientRect();
 
       setInputBoxStyle({
         left: `${rect1.left + window.scrollX}px`,
-        width: `${rect2.right - rect1.left}px`,
+        width: `${rect1.width * 2}px`,
       });
     } else if (inputRef1) {
       const rect1 = inputRef1.getBoundingClientRect();
       setInputBoxStyle({
         left: `${rect1.left + window.scrollX}px`,
-        width: `${rect1.width}px`,
+        width: `${rect1.width - 40}px`,
       });
     }
   };
 
-  // input 변경 핸들러
+  // input 변경 시 자동완성 추천 핸들러
   const handleInputChange = async (e, index) => {
-    const query = e.target.value;
-    onLocationChange(index, query);
+    const address = e.target.value;
+    onLocationChange(index, address); // MidFindPage의 handleLocationChange 호출
 
-    if (query.trim() === "") {
+    if (address.trim() === "") {
       setSuggestions([]);
       return;
     }
 
     try {
-      const results = await searchPlaceByKeyword(query);
+      const results = await searchPlaceByKeyword(address);
       setSuggestions(results);
     } catch (error) {
-      console.error("키워드 검색 중 오류: ", error);
+      console.error("자동완성 검색 오류: ", error);
+      setSuggestions([]);
     }
   };
 
   // 위치 선택 핸들러
-  const handleSelect = (selectedAddress) => {
-    if (activeInputIndex !== null) {
-      onLocationChange(activeInputIndex, selectedAddress);
+  const handleSelect = async (selectedAddress, index) => {
+      onLocationChange(index, selectedAddress);
       setSuggestions([]);
       setShowSuggestions(false);
+
+      try {
+        const coord = await getCoordinates(selectedAddress);
+        dispatch(
+          setLocation({
+            index,
+            address: selectedAddress,
+            coord,
+          })
+        );
+      } catch (error) {
+        console.error("좌표 가져오기 실패: ", error);
+      }
     }
-  };
+  
 
   // 현재 위치 가져오기
   const handleGetCurrentLocation = (index) => {
@@ -92,6 +110,14 @@ function LocationInput({ locations, onLocationChange }) {
               const address = document.road_address
                 ? document.road_address.address_name
                 : document.address.address_name;
+
+              dispatch(
+                setLocation({
+                  index,
+                  address,
+                  coord: { lat: latitude, lng: longitude },
+                })
+              );
 
               onLocationChange(index, address);
             } else {
@@ -122,15 +148,15 @@ function LocationInput({ locations, onLocationChange }) {
     <React.Fragment>
       <Container>
         {locations.map((location, index) => (
-          <InputRow key={Math.floor(index / 2)}>
+          <InputRow key={`input-row-${index}`}>
             {index % 2 === 0 && (
               <>
-                <InputBox>
+                <InputBox key={`input-box-${index}`}>
                   <Input
                     ref={(e) => (inputRefs.current[index] = e)}
                     type="text"
                     placeholder="위치를 입력해주세요"
-                    value={location}
+                    value={location.address}
                     onChange={(e) => handleInputChange(e, index)}
                     onFocus={() => handleFocus(index)}
                     autoComplete="off"
@@ -165,12 +191,12 @@ function LocationInput({ locations, onLocationChange }) {
                 </InputBox>
 
                 {locations[index + 1] !== undefined && (
-                  <InputBox>
+                  <InputBox key={`input-box-${index + 1}`}>
                     <Input
                       ref={(e) => (inputRefs.current[index + 1] = e)}
                       type="text"
                       placeholder="위치를 입력해주세요."
-                      value={locations[index + 1]}
+                      value={locations[index + 1].address}
                       onChange={(e) => handleInputChange(e, index + 1)}
                       onFocus={() => handleFocus(index + 1)}
                       autoComplete="off"
@@ -237,7 +263,7 @@ function LocationInput({ locations, onLocationChange }) {
               {suggestions.map((item, idx) => (
                 <SuggestionItem
                   key={idx}
-                  onClick={() => handleSelect(item.address_name)}
+                  onClick={() => handleSelect(item.address_name, activeInputIndex)}
                 >
                   <SuggestionBox>
                     <SuggestionTitleBox>
@@ -266,7 +292,7 @@ function LocationInput({ locations, onLocationChange }) {
         </SuggestionsContainer>
       )}
     </React.Fragment>
-  );
+  )
 }
 
 export default LocationInput;

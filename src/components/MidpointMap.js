@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 function MidpointMap() {
     const mapContainer = useRef(null);
-    const { midpointCoord } = useSelector((state) => state.midpoint);
+    const { midpoint } = useSelector((state) => state.midpoint);
 
     useEffect(() => {
         // Kakao Maps API 로드 확인
@@ -13,9 +13,9 @@ function MidpointMap() {
         }
         
         // midpointCoord 있을 때만 지도 생성
-        if (midpointCoord) {
-          const { lat, lng } = midpointCoord;
-          console.log("mid:", midpointCoord);
+        if (midpoint.coord) {
+          const { lat, lng } = midpoint.coord;
+          console.log("mid:", midpoint.coord);
 
           const mapOption = {
             center: new window.kakao.maps.LatLng(lat, lng),
@@ -31,7 +31,7 @@ function MidpointMap() {
             map: map,
           });
         }
-    }, [midpointCoord]);
+    }, [midpoint]);
 
 
   return <div ref={mapContainer} style={{ width: "100%", height: "400px" }} />;
