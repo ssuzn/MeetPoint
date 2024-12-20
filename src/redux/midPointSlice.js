@@ -51,7 +51,6 @@ const midpointSlice = createSlice({
   // 동기 액션 정의
   reducers: {
     setLocation: (state, action) => {
-      console.log("Payload received in setLocation:", action.payload);
       const { index, address, coord } = action.payload;
       state.locations[index] = { address, coord: coord || null };
     },
@@ -89,7 +88,7 @@ const midpointSlice = createSlice({
       // 실패
       .addCase(getMidpointInfo.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
+        state.error = action.payload || "오류가 발생했습니다. 다시 시도해주세요.";
       });
   },
 });

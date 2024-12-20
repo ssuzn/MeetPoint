@@ -15,7 +15,6 @@ function MidpointMap() {
         // midpointCoord 있을 때만 지도 생성
         if (midpoint.coord) {
           const { lat, lng } = midpoint.coord;
-          console.log("mid:", midpoint.coord);
 
           const mapOption = {
             center: new window.kakao.maps.LatLng(lat, lng),

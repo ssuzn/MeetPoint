@@ -21,11 +21,8 @@ export const getCoordinates = async (address) => {
           throw new Error("해당 주소를 찾을 수 없습니다.");
         }
     
-        console.log("Kakao API Response:", documents[0]);
-    
         // 좌표 반환 (x: 경도, y: 위도)
         const { x, y } = documents[0];
-        console.log("x, y:", x, y);
         return { lat: parseFloat(y), lng: parseFloat(x) };
       } catch (error) {
         console.error("Kakao API 호출 오류: ", error);
@@ -39,7 +36,6 @@ export const getCoordinates = async (address) => {
  */
 export const searchPlaceByKeyword = async (keyword) => {
     try {
-        console.log("검색어:", keyword); // 검색어 로그
         const response = await axios.get(
             `https://dapi.kakao.com/v2/local/search/keyword.json`,
             {
@@ -50,7 +46,6 @@ export const searchPlaceByKeyword = async (keyword) => {
             }
         );
 
-        console.log("API 응답:", response.data); // 응답 로그
         return response.data.documents;
     } catch (error) {
         console.error("Kakao 검색 API 호출 오류: ", error);
@@ -62,8 +57,6 @@ export const searchPlaceByKeyword = async (keyword) => {
  * 좌표를 주소로 변환 (현재 위치용)
  */
 export const getAddress = async (lng, lat) => {
-    console.log('Latitude:', lat);
-    console.log('Longitude:', lng);
     try {
         const response = await axios.get(
             `https://dapi.kakao.com/v2/local/geo/coord2address.json`,
@@ -74,7 +67,7 @@ export const getAddress = async (lng, lat) => {
                 },
             }
         );
-        console.log(response.data);
+
         return response.data.documents;
     } catch (error) {
         console.error("Kakao API 호출 오류: ", error);
@@ -142,29 +135,3 @@ export const getNearestSubway = async (lat, lng) => {
         return "오류가 발생했습니다.";
     }
 };
-
-export const getTransitTime = async (origin, destination) => {
-    try {
-      const response = await axios.get(
-        `https://apis-navi.kakaomobility.com/v1/directions/transit`,
-        {
-          params: {
-            origin: `${origin.lng},${origin.lat}`,
-            destination: `${destination.lng},${destination.lat}`,
-          },
-          headers: {
-            Authorization: `KakaoAK ${KAKAO_API_KEY}`,
-          },
-        }
-      );
-
-      console.log(response.data);
-  
-      // 소요시간 (초 단위)
-      const duration = response.data.routes[0]?.summary?.duration;
-      return duration ? Math.ceil(duration / 60) : null;
-    } catch (error) {
-      console.error("카카오 대중교통 경로 탐색 오류: ", error);
-      return null;
-    }
-  };

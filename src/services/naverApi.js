@@ -6,8 +6,6 @@ const NAVER_CLIENT_SECRET = process.env.REACT_APP_NAVER_CLIENT_SECRET;
 
 // 자동차 소요시간
 export const getDrivingTime = async (origin, destination) => {
-    console.log("origin: ", origin);
-    console.log("destination:  ", destination);
     try {
         const response = await axios.get(
             `/map-direction/v1/driving`,
