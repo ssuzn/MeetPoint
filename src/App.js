@@ -2,7 +2,6 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 
 import Loading from "./components/Loading";
-import MainPage from "./pages/MainPage";
 import MidFindPage from "./pages/MidFindPage";
 
 function App() {
@@ -10,8 +9,7 @@ function App() {
     <React.Fragment>
       <Loading />
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/midfind" element={<MidFindPage />} />
+        <Route path="/" element={<MidFindPage />} />
       </Routes>
     </React.Fragment>
   )  
