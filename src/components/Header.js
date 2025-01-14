@@ -1,11 +1,23 @@
-import React from 'react';
+import React from "react";
 import styled from "styled-components";
 import { FiMenu, FiBell, FiUser } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/userSlice";
 
 function Header() {
+  const dispatch = useDispatch();
+  const { isLoggedIn, nickname } = useSelector((state) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("user");
+    alert("로그아웃 되었습니다.");
+    window.location.href = "/";
+  };
+
   return (
     <HeaderContainer>
-      <Logo onClick={() => window.location.href = "/"}>MeetPoint</Logo>
+      <Logo onClick={() => (window.location.href = "/")}>MeetPoint</Logo>
 
       <NavMenu>
         <NavItem href="/features">기능 소개</NavItem>
@@ -20,14 +32,30 @@ function Header() {
         <IconButton>
           <FiUser size={20} />
         </IconButton>
-        <LoginButton onClick={() => window.location.href = "/login"}>로그인</LoginButton>
+
+        {isLoggedIn ? (
+          <UserInfo>
+            <UserNick>{nickname} 님</UserNick>
+            <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+          </UserInfo>
+        ) : (
+          <UserInfo>
+            <LoginButton onClick={() => (window.location.href = "/signup")}>
+              회원가입
+            </LoginButton>
+            <LoginButton onClick={() => (window.location.href = "/login")}>
+              로그인
+            </LoginButton>
+          </UserInfo>
+        )}
+
       </UtilityButtons>
 
       <HamburgerMenu>
         <FiMenu size={24} />
       </HamburgerMenu>
     </HeaderContainer>
-  )
+  );
 }
 
 export default Header;
@@ -49,7 +77,7 @@ const Logo = styled.div`
   cursor: pointer;
 
   &:hover {
-    color:rgb(66, 49, 48);
+    color: rgb(66, 49, 48);
   }
 `;
 
@@ -72,7 +100,7 @@ const NavItem = styled.a`
     color: rgb(66, 49, 48);
   }
 `;
- 
+
 const UtilityButtons = styled.div`
   display: flex;
   align-items: center;
@@ -95,16 +123,19 @@ const IconButton = styled.button`
 `;
 
 const LoginButton = styled.button`
-  background-color: #574240;;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  padding: 5px 15px;
+  padding: 6px 15px;
+  font-size: 12px;
+  color: #574240;
+  background: transparent;
+  border: 1px solid #574240;
+  border-radius: 5px;
   cursor: pointer;
   font-weight: 700;
+  transition: all 0.3s;
 
   &:hover {
     background-color: rgb(66, 49, 48);
+    color: #fff;
   }
 `;
 
@@ -115,5 +146,32 @@ const HamburgerMenu = styled.div`
   @media (max-width: 768px) {
     display: block;
     color: #333333;
+  }
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  gap: 15px;
+`;
+
+const UserNick = styled.div`
+  font-weight: 500;
+  align-content: center;
+`;
+
+const LogoutButton = styled.button`
+  padding: 6px 15px;
+  font-size: 12px;
+  color: #574240;
+  background: transparent;
+  border: 1px solid #574240;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: rgb(66, 49, 48);
+    color: #fff;
   }
 `;

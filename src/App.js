@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 
@@ -7,8 +7,27 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage";
 import MidFindPage from "./pages/MidFindPage";
+import SignUpForm from "./components/SignUpForm";
+import LoginForm from "./components/LoginForm";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "./redux/userSlice";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // 새로고침 시에도 로그인 유지
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      dispatch(
+        loginSuccess({
+          email: storedUser.email,
+          nickname: storedUser.nickname,
+        })
+      );
+    }
+  }, [dispatch]);
+  
   return (
     <Container>
       <Loading />
@@ -18,6 +37,9 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/find-midpoint" element={<MidFindPage />} />
+
+          <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/login" element={<LoginForm />} />
         </Routes>
       </Page>
 
