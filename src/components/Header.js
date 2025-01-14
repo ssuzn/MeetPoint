@@ -20,6 +20,7 @@ function Header() {
         <IconButton>
           <FiUser size={20} />
         </IconButton>
+        <LoginButton onClick={() => window.location.href = "/signup"}>회원가입</LoginButton>
         <LoginButton onClick={() => window.location.href = "/login"}>로그인</LoginButton>
       </UtilityButtons>
 

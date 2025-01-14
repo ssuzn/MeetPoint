@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage";
 import MidFindPage from "./pages/MidFindPage";
+import SignUpForm from "./components/SignUpForm";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/find-midpoint" element={<MidFindPage />} />
+
+          <Route path="/signup" element={<SignUpForm />} />
         </Routes>
       </Page>
 
