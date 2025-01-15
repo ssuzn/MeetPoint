@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage";
 import MidFindPage from "./pages/MidFindPage";
+import MyPage from "./pages/MyPage";
 import SignUpForm from "./components/SignUpForm";
 import LoginForm from "./components/LoginForm";
 import { useDispatch } from "react-redux";
@@ -37,7 +38,8 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/find-midpoint" element={<MidFindPage />} />
-
+          <Route path="/mypage" element={<MyPage />} />
+          
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/login" element={<LoginForm />} />
         </Routes>

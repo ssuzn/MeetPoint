@@ -27,10 +27,10 @@ function Header() {
 
       <UtilityButtons>
         <IconButton>
-          <FiBell size={20} />
+          <FiBell size={20} style={{ width: "24px" }}/>
         </IconButton>
         <IconButton>
-          <FiUser size={20} />
+          <FiUser size={20} onClick={() => (window.location.href = "/mypage")} style={{ width: "24px" }}/>
         </IconButton>
 
         {isLoggedIn ? (
@@ -113,11 +113,15 @@ const UtilityButtons = styled.div`
 
 const IconButton = styled.button`
   border: none;
+  border-radius: 50%;
+  padding: 3px;
   background: transparent;
   cursor: pointer;
   color: #333333;
+  transition: background-color 0.2s;
 
   &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
     color: rgb(66, 49, 48);
   }
 `;
